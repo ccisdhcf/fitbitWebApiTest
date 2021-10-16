@@ -4,6 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
+using System.Diagnostics;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,6 +14,7 @@ namespace fitbitWebApiTest.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    
     public class FitbitController : ControllerBase
     {
 
@@ -28,12 +32,24 @@ namespace fitbitWebApiTest.Controllers
 
         [HttpGet]
         public ActionResult Get()
+        //public string Get()
         {
             strVerifier = _stringGen.RandomString(43, 128);
-            strCodeChallenge = _stringGen.ComputeSha256Hash(strVerifier);
-            strCodeChallenge = _stringGen.ComputeBase64Url(strCodeChallenge);
-            Console.Write(string.Format(strAuthUrl, strClientID, strResponseType, strCodeChallenge, strCodeChallengeMethod, strScope));
+            Console.WriteLine(strVerifier);
+            Console.WriteLine();
+            strCodeChallenge = _stringGen.SHA256PlusBase64(strVerifier);
+            Console.WriteLine(strCodeChallenge);
+            Console.WriteLine();
+            Console.WriteLine(string.Format(strAuthUrl, strClientID, strResponseType, strCodeChallenge, strCodeChallengeMethod, strScope));
+            //Process.Start(new ProcessStartInfo("https://google.com") { UseShellExecute = true }); // Works ok on windows
             return Redirect(string.Format(strAuthUrl, strClientID, strResponseType, strCodeChallenge, strCodeChallengeMethod, strScope));
+            //return string.Format(strAuthUrl, strClientID, strResponseType, strCodeChallenge, strCodeChallengeMethod, strScope);
+        }
+        [HttpPost]
+        public ActionResult Post()
+        {
+            // fetch
+            return Ok();
         }
 
     }
