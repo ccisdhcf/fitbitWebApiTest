@@ -47,6 +47,12 @@ namespace fitbitWebApiTest.tools
 
             return result;
         }
+        public string Base64Encode(string text)
+        {
+            string result=Convert.ToBase64String(Encoding.UTF8.GetBytes(text));
+            return result;
+
+        }
         public string SHA256PlusBase64(string text)
         {
             using (SHA256 sha256Hash = SHA256.Create())
