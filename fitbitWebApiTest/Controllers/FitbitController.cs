@@ -14,6 +14,7 @@ using System.IO;
 
 
 
+
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace fitbitWebApiTest.Controllers
@@ -34,6 +35,8 @@ namespace fitbitWebApiTest.Controllers
         private readonly string strAuthUrl = "https://www.fitbit.com/oauth2/authorize?client_id={0}&response_type={1}&code_challenge={2}&code_challenge_method={3}&scope={4}";
         private readonly string strTokenUrl = "https://api.fitbit.com/oauth2/token";
         private readonly stringGen _stringGen = new();
+        private readonly OauthResponse oauthResponse = new();
+
         private static readonly HttpClient client = new HttpClient();
         string fileName = "verifier.json";
 
@@ -68,39 +71,55 @@ namespace fitbitWebApiTest.Controllers
             string jsonStr = System.IO.File.ReadAllText(fileName);
             strVerifier = JsonSerializer.Deserialize<string>(jsonStr);
 
-       
 
-            Dictionary<string, string> formDataDictionary = new Dictionary<string, string>();
-            formDataDictionary.Add("Content-Type", "application/x-www-form-urlencoded");
 
-            formDataDictionary.Add("client_id", "23BKY4");
-            formDataDictionary.Add("code", code);
-            formDataDictionary.Add("code_verifier", strVerifier);
-            formDataDictionary.Add("grant_type", "authorization_code");
-            foreach (KeyValuePair<string, string> i in formDataDictionary)
+            Dictionary<string, string> formDataDictionary = new()
             {
-                Console.WriteLine(i);
-            }
+                { "Content-Type", "application/x-www-form-urlencoded" },
+                { "client_id", "23BKY4" },
+                { "code", code },
+                { "code_verifier", strVerifier },
+                { "grant_type", "authorization_code" }
+            };
+            //foreach (KeyValuePair<string, string> i in formDataDictionary)
+            //{
+            //    Console.WriteLine(i);
+            //}
             var formData = new FormUrlEncodedContent(formDataDictionary);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             var response = await client.PostAsync(strTokenUrl, formData);
-            Console.WriteLine("response");
-            Console.WriteLine(response);
+            //Console.WriteLine("response");
+            //Console.WriteLine(response);
             if (response != null)
             {
                 if (response.IsSuccessStatusCode == true)
                 {
-                    // 取得呼叫完成 API 後的回報內容
+                    // Response Content
                     String strResult = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine(strResult);
-                    
+                    //Console.WriteLine(strResult);
+                    var temp = JsonSerializer.Deserialize<OauthResponse>(strResult);
+                    Console.WriteLine("access token:"+temp.access_token + "\n \n" +
+                        "expires_in:" + temp.expires_in + "\n \n" +
+                        "refresh_token:" + temp.refresh_token + "\n \n" +
+                        "scope:"+temp.scope + "\n \n" +
+                        "token_type:"+temp.token_type + "\n \n" +
+                        "user_id:"+temp.user_id);
+
                 }
             }
 
 
                 return Ok();
         }
+        [HttpPost]
+        [Route("localpost")]
+        public ActionResult GetLocalPost([FromBody] string code)
+        {
+            Console.WriteLine(code);
 
+            return Ok();
+
+        }
     }
 }
