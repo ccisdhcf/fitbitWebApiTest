@@ -116,6 +116,8 @@ namespace fitbitWebApiTest.Controllers
         [Route("localpost")]
         public ActionResult GetLocalPost([FromBody] string code)
         {
+
+
             Console.WriteLine(code);
 
             return Ok();
